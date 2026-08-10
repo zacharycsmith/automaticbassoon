@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resolve — An Inspirational Quote Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg: #16171a;
+    --panel: #1f2023;
+    --panel-2: #26272b;
+    --gold: #c9a227;
+    --gold-soft: rgba(201,162,39,0.18);
+    --maroon: #8c2f39;
+    --text: #f2f1ec;
+    --muted: #8b8d94;
+    --border: rgba(201,162,39,0.22);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(201,162,39,0.08), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(140,47,57,0.14), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', Arial, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding: 2.5rem 1.25rem;
+  }
+  .app{
+    width:100%;
+    max-width:760px;
+    position:relative;
+  }
+  .topline{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:1.5rem;
+    flex-wrap:wrap;
+    gap:0.75rem;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.4rem;
+    letter-spacing:0.01em;
+  }
+  .brand span{ color:var(--gold); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--muted);
+    letter-spacing:0.03em;
+  }
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.55rem;
+    margin-bottom:1.75rem;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.74rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:0.4rem 0.85rem;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    transition: all 0.15s ease;
+  }
+  .chip:hover{ border-color:var(--gold); color:var(--text); }
+  .chip.active{
+    background:var(--gold-soft);
+    border-color:var(--gold);
+    color:var(--gold);
+  }
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding: 3.5rem 3rem 2.5rem;
+    overflow:hidden;
+    min-height: 280px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .card::before{
+    content:"“";
+    position:absolute;
+    top:-2.2rem;
+    left:1.1rem;
+    font-family:'Fraunces', serif;
+    font-size:11rem;
+    color:var(--gold);
+    opacity:0.09;
+    line-height:1;
+    pointer-events:none;
+  }
+  .quote-text{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size: clamp(1.5rem, 3.2vw, 2.15rem);
+    line-height:1.35;
+    margin:0 0 1.5rem;
+    position:relative;
+    z-index:1;
+  }
+  .quote-meta{
+    display:flex;
+    align-items:center;
+    gap:0.8rem;
+    flex-wrap:wrap;
+  }
+  .quote-rule{
+    width:34px;
+    height:2px;
+    background:var(--gold);
+  }
+  .quote-author{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--muted);
+  }
+  .quote-category{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--gold);
+    border:1px solid var(--border);
+    padding:0.15rem 0.55rem;
+    border-radius:4px;
+    margin-left:auto;
+  }
+  .fade-in{ animation: rise 0.45s ease; }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .fade-in{ animation:none; }
+  }
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    margin-top:1.75rem;
+    flex-wrap:wrap;
+  }
+  .primary-actions{
+    display:flex;
+    gap:0.75rem;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.92rem;
+    padding:0.75rem 1.6rem;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition: filter 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-gold{
+    background:var(--gold);
+    color:#1a1503;
+  }
+  .btn-gold:hover{ filter:brightness(1.08); }
+  .btn-ghost{
+    background:transparent;
+    border-color:var(--border);
+    color:var(--text);
+  }
+  .btn-ghost:hover{ border-color:var(--gold); }
+  .btn-ghost.is-saved{
+    border-color:var(--maroon);
+    color:#e39aa2;
+  }
+  .hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+  }
+  .hint kbd{
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:0.05rem 0.4rem;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .toast{
+    position:fixed;
+    bottom:1.75rem;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--panel-2);
+    border:1px solid var(--gold);
+    color:var(--text);
+    padding:0.65rem 1.2rem;
+    border-radius:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    opacity:0;
+    transition: all 0.25s ease;
+    pointer-events:none;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  .saved-panel{
+    margin-top:1.75rem;
+    border-top:1px solid var(--border);
+    padding-top:1.25rem;
+    display:none;
+  }
+  .saved-panel.open{ display:block; }
+  .saved-panel h2{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:0 0 0.9rem;
+  }
+  .saved-item{
+    padding:0.85rem 0;
+    border-bottom:1px solid var(--border);
+    font-size:0.92rem;
+  }
+  .saved-item:last-child{ border-bottom:none; }
+  .saved-item .sa-author{
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    margin-top:0.3rem;
+  }
+  .empty-note{
+    color:var(--muted);
+    font-size:0.88rem;
+  }
+  footer.back-nav{
+    text-align:center;
+    margin-top:2.25rem;
+  }
+  footer.back-nav a{
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    text-decoration:none;
+  }
+  footer.back-nav a:hover{ color:var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topline">
+    <div class="brand">RESOLVE<span>.</span></div>
+    <div class="counter" id="counter">Quotes explored: 0</div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+
+  <div class="card">
+    <blockquote class="quote-text fade-in" id="quoteText">Loading&hellip;</blockquote>
+    <div class="quote-meta">
+      <div class="quote-rule"></div>
+      <div class="quote-author" id="quoteAuthor"></div>
+      <div class="quote-category" id="quoteCategory"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="primary-actions">
+      <button class="btn btn-gold" id="newQuoteBtn">New Quote</button>
+      <button class="btn btn-ghost" id="saveBtn">Save</button>
+      <button class="btn btn-ghost" id="copyBtn">Copy</button>
+    </div>
+    <div class="hint">press <kbd>N</kbd> for next &middot; <kbd>S</kbd> to save</div>
+  </div>
+
+  <div class="saved-panel" id="savedPanel">
+    <h2 id="savedHeading">Saved (0)</h2>
+    <div id="savedList"><p class="empty-note">Nothing saved yet — hit "Save" on a quote you want to keep.</p></div>
+  </div>
+
+  <footer class="back-nav">
+    <a href="yoyo.html">&larr; Back to the yoyo page</a>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const quotes = [
+    { text: "The greatest leader is not necessarily the one who does the greatest things. He is the one that gets the people to do the greatest things.", author: "Ronald Reagan", category: "Leadership" },
+    { text: "A leader is one who knows the way, goes the way, and shows the way.", author: "John C. Maxwell", category: "Leadership" },
+    { text: "Leadership is not about being in charge. It is about taking care of those in your charge.", author: "Simon Sinek", category: "Leadership" },
+    { text: "Management is doing things right; leadership is doing the right things.", author: "Peter Drucker", category: "Leadership" },
+    { text: "The function of leadership is to produce more leaders, not more followers.", author: "Ralph Nader", category: "Leadership" },
+    { text: "A good leader takes a little more than his share of the blame, a little less than his share of the credit.", author: "Arnold H. Glasow", category: "Leadership" },
+    { text: "Leaders think and talk about the solutions. Followers think and talk about the problems.", author: "Brian Tracy", category: "Leadership" },
+    { text: "Before you are a leader, success is all about growing yourself. When you become a leader, success is all about growing others.", author: "Jack Welch", category: "Leadership" },
+
+    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", category: "Perseverance" },
+    { text: "Fall seven times, stand up eight.", author: "Japanese Proverb", category: "Perseverance" },
+    { text: "Perseverance is not a long race; it is many short races one after another.", author: "Walter Elliot", category: "Perseverance" },
+    { text: "Energy and persistence conquer all things.", author: "Benjamin Franklin", category: "Perseverance" },
+    { text: "Through perseverance many people win success out of what seemed destined to be certain failure.", author: "Benjamin Disraeli", category: "Perseverance" },
+    { text: "Success is stumbling from failure to failure with no loss of enthusiasm.", author: "Winston Churchill", category: "Perseverance" },
+    { text: "It always seems impossible until it's done.", author: "Nelson Mandela", category: "Perseverance" },
+    { text: "Rivers know this: there is no hurry. We shall get there some day.", author: "A.A. Milne", category: "Perseverance" },
+
+    { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Will Durant", category: "Discipline" },
+    { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln", category: "Discipline" },
+    { text: "The pain of discipline is far less than the pain of regret.", author: "Sidney Ankobiah", category: "Discipline" },
+    { text: "Through discipline comes freedom.", author: "Aristotle", category: "Discipline" },
+    { text: "It is discipline, not desire, that determines your success.", author: "John C. Maxwell", category: "Discipline" },
+    { text: "Motivation gets you going, but discipline keeps you growing.", author: "John C. Maxwell", category: "Discipline" },
+    { text: "Small disciplines repeated with consistency every day lead to great achievements gained slowly over time.", author: "John C. Maxwell", category: "Discipline" },
+    { text: "Self-command is the main discipline.", author: "Ralph Waldo Emerson", category: "Discipline" },
+
+    { text: "The best way to predict the future is to create it.", author: "Peter Drucker", category: "Vision" },
+    { text: "Vision without execution is just hallucination.", author: "Thomas Edison", category: "Vision" },
+    { text: "Where there is no vision, the people perish.", author: "Book of Proverbs", category: "Vision" },
+    { text: "A vision is not just a picture of what could be; it is an appeal to our better selves.", author: "Rosabeth Moss Kanter", category: "Vision" },
+    { text: "Great things are done by a series of small things brought together.", author: "Vincent van Gogh", category: "Vision" },
+    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", category: "Vision" },
+    { text: "I am not afraid of storms, for I am learning how to sail my ship.", author: "Louisa May Alcott", category: "Vision" },
+    { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson", category: "Vision" },
+
+    { text: "Courage is not the absence of fear, but the triumph over it.", author: "Nelson Mandela", category: "Courage" },
+    { text: "You cannot swim for new horizons until you have courage to lose sight of the shore.", author: "William Faulkner", category: "Courage" },
+    { text: "It takes courage to grow up and become who you really are.", author: "E.E. Cummings", category: "Courage" },
+    { text: "One man with courage makes a majority.", author: "Andrew Jackson", category: "Courage" },
+    { text: "Courage is grace under pressure.", author: "Ernest Hemingway", category: "Courage" },
+    { text: "Life shrinks or expands in proportion to one's courage.", author: "Anaïs Nin", category: "Courage" },
+    { text: "Only those who dare to fail greatly can ever achieve greatly.", author: "Robert F. Kennedy", category: "Courage" },
+    { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford", category: "Courage" }
+  ];
+
+  const categories = ["All", ...Array.from(new Set(quotes.map(q => q.category)))];
+  let activeCategory = "All";
+  let currentQuote = null;
+  let viewCount = 0;
+  const saved = [];
+
+  const quoteTextEl = document.getElementById('quoteText');
+  const quoteAuthorEl = document.getElementById('quoteAuthor');
+  const quoteCategoryEl = document.getElementById('quoteCategory');
+  const counterEl = document.getElementById('counter');
+  const filtersEl = document.getElementById('filters');
+  const savedPanel = document.getElementById('savedPanel');
+  const savedList = document.getElementById('savedList');
+  const savedHeading = document.getElementById('savedHeading');
+  const saveBtn = document.getElementById('saveBtn');
+  const toastEl = document.getElementById('toast');
+
+  function buildFilters() {
+    filtersEl.innerHTML = "";
+    categories.forEach(cat => {
+      const chip = document.createElement('button');
+      chip.className = "chip" + (cat === activeCategory ? " active" : "");
+      chip.textContent = cat;
+      chip.addEventListener('click', () => {
+        activeCategory = cat;
+        buildFilters();
+        showRandomQuote();
+      });
+      filtersEl.appendChild(chip);
+    });
+  }
+
+  function pool() {
+    return activeCategory === "All" ? quotes : quotes.filter(q => q.category === activeCategory);
+  }
+
+  function showRandomQuote() {
+    const list = pool();
+    let next = list[Math.floor(Math.random() * list.length)];
+    if (list.length > 1 && currentQuote && next.text === currentQuote.text) {
+      next = list[(list.indexOf(next) + 1) % list.length];
+    }
+    currentQuote = next;
+    quoteTextEl.classList.remove('fade-in');
+    void quoteTextEl.offsetWidth; // restart animation
+    quoteTextEl.classList.add('fade-in');
+    quoteTextEl.textContent = currentQuote.text;
+    quoteAuthorEl.textContent = "— " + currentQuote.author;
+    quoteCategoryEl.textContent = currentQuote.category;
+    viewCount++;
+    counterEl.textContent = "Quotes explored: " + viewCount;
+    refreshSaveButton();
+  }
+
+  function refreshSaveButton() {
+    const isSaved = saved.some(q => q.text === currentQuote.text);
+    saveBtn.textContent = isSaved ? "Saved ✓" : "Save";
+    saveBtn.classList.toggle('is-saved', isSaved);
+  }
+
+  function toggleSave() {
+    const idx = saved.findIndex(q => q.text === currentQuote.text);
+    if (idx === -1) {
+      saved.unshift(currentQuote);
+      showToast("Saved to your list");
+    } else {
+      saved.splice(idx, 1);
+      showToast("Removed from your list");
+    }
+    refreshSaveButton();
+    renderSavedList();
+  }
+
+  function renderSavedList() {
+    savedHeading.textContent = "Saved (" + saved.length + ")";
+    savedPanel.classList.toggle('open', saved.length > 0);
+    if (saved.length === 0) {
+      savedList.innerHTML = '<p class="empty-note">Nothing saved yet — hit "Save" on a quote you want to keep.</p>';
+      return;
+    }
+    savedList.innerHTML = saved.map(q => `
+      <div class="saved-item">
+        <div>${q.text}</div>
+        <div class="sa-author">— ${q.author} &middot; ${q.category}</div>
+      </div>
+    `).join("");
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+  }
+
+  document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote);
+  saveBtn.addEventListener('click', toggleSave);
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const full = `"${currentQuote.text}" — ${currentQuote.author}`;
+    navigator.clipboard.writeText(full).then(() => showToast("Copied to clipboard"))
+      .catch(() => showToast("Could not copy — try selecting the text manually"));
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key.toLowerCase() === 'n') showRandomQuote();
+    if (e.key.toLowerCase() === 's') toggleSave();
+  });
+
+  buildFilters();
+  showRandomQuote();
+</script>
+
+</body>
+</html>
